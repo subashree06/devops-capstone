@@ -1,4 +1,3 @@
-
 # 🚀 DevOps Application Deployment Capstone
 
 > A production-ready deployment pipeline for a React application using Docker, Jenkins CI/CD, AWS EC2, and open-source monitoring.
