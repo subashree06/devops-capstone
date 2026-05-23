@@ -1,6 +1,11 @@
+
 # 🚀 DevOps Application Deployment Capstone
 
 > A production-ready deployment pipeline for a React application using Docker, Jenkins CI/CD, AWS EC2, and open-source monitoring.
+
+**Author:** Subashree  
+**GitHub:** [subashree06](https://github.com/subashree06)  
+*Capstone Project — DevOps Application Deployment | GUVI × HCL*
 
 ---
 
@@ -9,22 +14,21 @@
 - [Project Overview](#-project-overview)
 - [Tech Stack](#-tech-stack)
 - [Project Structure](#-project-structure)
-- [Setup & Installation](#-setup--installation)
-- [Docker](#-docker)
-- [Bash Scripts](#-bash-scripts)
-- [Version Control](#-version-control)
-- [Docker Hub](#-docker-hub)
-- [Jenkins CI/CD Pipeline](#-jenkins-cicd-pipeline)
-- [AWS Deployment](#-aws-deployment)
-- [Monitoring](#-monitoring)
-- [Output Screenshots](#-output-screenshots)
+- [Phase 1 - Application Setup](#-phase-1---application-setup)
+- [Phase 2 - Docker](#-phase-2---docker)
+- [Phase 3 - Bash Scripts](#-phase-3---bash-scripts)
+- [Phase 4 - Version Control](#-phase-4---version-control)
+- [Phase 5 - Docker Hub](#-phase-5---docker-hub)
+- [Phase 6 - Jenkins CI/CD](#-phase-6---jenkins-cicd)
+- [Phase 7 - AWS Deployment](#-phase-7---aws-deployment)
+- [Phase 8 - Monitoring](#-phase-8---monitoring)
 - [Submission](#-submission)
 
 ---
 
 ## 📌 Project Overview
 
-This project demonstrates a complete DevOps workflow — from source code to a live, production-ready React application deployed on AWS EC2. The pipeline automates building, testing, and deploying Docker images using Jenkins, triggered by GitHub branch activity.
+This project demonstrates a complete DevOps workflow — from source code to a live, production-ready React application deployed on AWS EC2. The pipeline automates building and deploying Docker images using Jenkins, triggered by GitHub branch activity.
 
 **Source Repository:** [https://github.com/sriram-R-krishnan/devops-build](https://github.com/sriram-R-krishnan/devops-build)
 
@@ -49,67 +53,89 @@ This project demonstrates a complete DevOps workflow — from source code to a l
 ## 📁 Project Structure
 
 ```
-devops-build/
-├── public/
-├── src/
+devops-capstone/
+├── screenshots/
+│   ├── 01-app-local.png
+│   ├── 02-dockerfile.png
+│   ├── 03-docker-build.png
+│   ├── 04-docker-running.png
+│   ├── 05-app-on-browser.png
+│   ├── 06-build-sh.png
+│   ├── 07-deploy-sh.png
+│   ├── 08-github-dev-branch.png
+│   ├── 09-gitignore-dockerignore.png
+│   ├── 10-dockerhub-dev-repo.png
+│   ├── 11-dockerhub-prod-repo.png
+│   ├── 12-jenkins-installed.png
+│   ├── 13-jenkins-pipeline.png
+│   ├── 14-jenkins-build-success.png
+│   ├── 15-ec2-instance.png
+│   ├── 16-security-group.png
+│   ├── 17-app-live-ec2.png
+│   └── 18-monitoring-dashboard.png
+├── build/
 ├── Dockerfile
 ├── docker-compose.yml
-├── .dockerignore
-├── .gitignore
 ├── Jenkinsfile
 ├── build.sh
 ├── deploy.sh
+├── .gitignore
+├── .dockerignore
 └── README.md
 ```
 
 ---
 
-## ⚙️ Setup & Installation
+## 🖥 Phase 1 - Application Setup
 
-### Prerequisites
-- Docker & Docker Compose installed
-- Git installed
-- Node.js 18+ (for local development)
+Clone the source repository and run the React application locally on port 80.
 
-### Clone the Repository
-
+### Clone the repo
 ```bash
-git clone https://github.com/YOUR-USERNAME/YOUR-REPO.git
+git clone https://github.com/sriram-R-krishnan/devops-build
 cd devops-build
-git checkout dev
 ```
 
-### Run Locally
-
-```bash
-npm install
-npm start
-# App runs at http://localhost:3000
+### Run locally on Windows (port 80)
+```powershell
+cd C:\Users\Administrator\devops-capstone
+npx serve -s build -l 80
 ```
+
+Open browser at:
+```
+http://localhost
+```
+
+📸 **Screenshot — React app running locally on port 80:**
+
+![App Local](screenshots/01-app-local.png)
+
+📸 **Screenshot — Terminal showing serve running on port 80:**
+
+![App Local Terminal](screenshots/01-app-local-terminal.png)
 
 ---
 
-## 🐳 Docker
+## 🐳 Phase 2 - Docker
 
 ### Dockerfile
 
-Multi-stage build — builds the React app and serves it via Nginx on **port 80**.
+Since the repo provides a pre-built React app, Nginx directly serves the `build/` folder on **port 80**.
 
 ```dockerfile
-# Stage 1: Build
-FROM node:18-alpine AS builder
-WORKDIR /app
-COPY package*.json ./
-RUN npm install
-COPY . .
-RUN npm run build
-
-# Stage 2: Serve
+# Serve the pre-built React app with Nginx on port 80
 FROM nginx:alpine
-COPY --from=builder /app/build /usr/share/nginx/html
+COPY build/ /usr/share/nginx/html
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
 ```
+
+📸 **Screenshot — Dockerfile in VS Code:**
+
+![Dockerfile](screenshots/02-dockerfile.png)
+
+---
 
 ### docker-compose.yml
 
@@ -117,88 +143,167 @@ CMD ["nginx", "-g", "daemon off;"]
 version: '3.8'
 services:
   app:
-    image: your-dockerhub-username/dev:latest
+    image: subashree06/dev:latest
     ports:
       - "80:80"
     restart: always
 ```
 
-### Build & Run Manually
-
-```bash
-docker build -t devops-app .
-docker-compose up -d
-# App available at http://localhost:80
+### Build Docker Image
+```powershell
+docker build -t subashree06/dev:latest .
 ```
+
+📸 **Screenshot — Docker image build output:**
+
+![Docker Build](screenshots/03-docker-build.png)
 
 ---
 
-## 📜 Bash Scripts
+### Run Docker Container
+```powershell
+docker run -d -p 80:80 --name devops-app subashree06/dev:latest
+```
 
-### build.sh — Builds and pushes Docker image
+### Verify container is running
+```powershell
+docker ps
+```
 
-Detects current git branch and pushes to the correct Docker Hub repo (`dev` or `prod`).
+📸 **Screenshot — Docker container running (`docker ps`):**
+
+![Docker Running](screenshots/04-docker-running.png)
+
+📸 **Screenshot — App running on browser via Docker (port 80):**
+
+![App on Browser](screenshots/05-app-on-browser.png)
+
+---
+
+## 📜 Phase 3 - Bash Scripts
+
+Two scripts automate the build and deployment process.
+
+### build.sh — Builds and pushes Docker image to Docker Hub
 
 ```bash
-chmod +x build.sh
-./build.sh
+#!/bin/bash
+set -e
+
+DOCKERHUB_USERNAME="subashree06"
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+if [ "$BRANCH" = "master" ]; then
+  REPO="prod"
+else
+  REPO="dev"
+fi
+
+IMAGE="$DOCKERHUB_USERNAME/$REPO:latest"
+docker build -t $IMAGE .
+echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+docker push $IMAGE
+echo "Build complete!"
 ```
+
+📸 **Screenshot — build.sh script in VS Code:**
+
+![build.sh](screenshots/06-build-sh.png)
+
+---
 
 ### deploy.sh — Pulls image and deploys on server
 
 ```bash
-chmod +x deploy.sh
-./deploy.sh
+#!/bin/bash
+set -e
+
+DOCKERHUB_USERNAME="subashree06"
+BRANCH=${1:-dev}
+
+if [ "$BRANCH" = "master" ]; then
+  REPO="prod"
+else
+  REPO="dev"
+fi
+
+IMAGE="$DOCKERHUB_USERNAME/$REPO:latest"
+docker pull $IMAGE
+docker-compose down || true
+docker-compose up -d
+echo "Deployment complete!"
 ```
+
+📸 **Screenshot — deploy.sh script in VS Code:**
+
+![deploy.sh](screenshots/07-deploy-sh.png)
 
 ---
 
-## 🔀 Version Control
+## 🔀 Phase 4 - Version Control
 
 All git operations performed via **CLI only**.
 
-```bash
-# Create dev branch and push
+```powershell
+# Initialize and setup
+git init
 git checkout -b dev
-git add .
-git commit -m "feat: add Dockerfile, compose, and CI/CD scripts"
-git push -u origin dev
+git remote add origin https://github.com/subashree06/devops-capstone.git
 
-# Merge to master (triggers prod deployment)
-git checkout master
-git merge dev
-git push origin master
+# Add and push
+git add .
+git commit -m "initial commit: add Dockerfile, scripts, and CI/CD config"
+git push -u origin dev
 ```
 
-**Files included:**
 - `.gitignore` — excludes `node_modules/`, `build/`, `.env`
 - `.dockerignore` — excludes `node_modules`, `.git`, `build`
 
----
+📸 **Screenshot — GitHub showing dev branch with all files:**
 
-## 🐋 Docker Hub
+![GitHub Dev Branch](screenshots/08-github-dev-branch.png)
 
-Two repositories created:
+📸 **Screenshot — .gitignore and .dockerignore files:**
 
-| Repo | Visibility | Used When |
-|------|-----------|-----------|
-| `your-username/dev` | Public | Push to `dev` branch |
-| `your-username/prod` | **Private** | Merge to `master` branch |
-
-Docker Hub Profile: `https://hub.docker.com/u/your-username`
+![gitignore dockerignore](screenshots/09-gitignore-dockerignore.png)
 
 ---
 
-## ⚙️ Jenkins CI/CD Pipeline
+## 🐋 Phase 5 - Docker Hub
+
+Two repositories created on Docker Hub:
+
+| Repo | Visibility | Triggered By |
+|------|-----------|-------------|
+| `subashree06/dev` | Public | Push to `dev` branch |
+| `subashree06/prod` | 🔒 Private | Merge to `master` branch |
+
+### Push image to Docker Hub
+```bash
+docker login
+docker push subashree06/dev:latest
+```
+
+📸 **Screenshot — Docker Hub dev repo (public):**
+
+![DockerHub Dev](screenshots/10-dockerhub-dev-repo.png)
+
+📸 **Screenshot — Docker Hub prod repo (private):**
+
+![DockerHub Prod](screenshots/11-dockerhub-prod-repo.png)
+
+---
+
+## ⚙️ Phase 6 - Jenkins CI/CD
 
 ### Pipeline Flow
 
 ```
 GitHub Push
     │
-    ├── dev branch  ──► Build Image ──► Push to Docker Hub (dev repo)
+    ├── dev branch   ──► Build Image ──► Push to subashree06/dev
     │
-    └── master branch ─► Build Image ──► Push to Docker Hub (prod repo)
+    └── master branch ─► Build Image ──► Push to subashree06/prod
 ```
 
 ### Jenkinsfile
@@ -207,55 +312,90 @@ GitHub Push
 pipeline {
     agent any
     environment {
-        DOCKERHUB_USERNAME = 'your-dockerhub-username'
+        DOCKERHUB_USERNAME = 'subashree06'
         DOCKERHUB_PASSWORD = credentials('dockerhub-creds')
     }
     stages {
-        stage('Clone') { steps { checkout scm } }
+        stage('Clone')        { steps { checkout scm } }
         stage('Build & Push') { steps { sh './build.sh' } }
-        stage('Deploy') { steps { sh './deploy.sh' } }
+        stage('Deploy')       { steps { sh "./deploy.sh ${env.BRANCH_NAME}" } }
     }
 }
 ```
 
-### Jenkins Setup
-- Installed on EC2 at port `8080`
-- Connected to GitHub repo via webhook
-- Auto-triggers on push to `dev` and `master` branches
+### Jenkins Install on EC2
+```bash
+sudo apt update
+sudo apt install -y openjdk-17-jdk
+curl -fsSL https://pkg.jenkins.io/debian/jenkins.io-2023.key | sudo tee \
+  /usr/share/keyrings/jenkins-keyring.asc > /dev/null
+echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
+  https://pkg.jenkins.io/debian binary/ | sudo tee \
+  /etc/apt/sources.list.d/jenkins.list > /dev/null
+sudo apt update && sudo apt install -y jenkins
+sudo systemctl start jenkins
+```
+
+📸 **Screenshot — Jenkins dashboard accessible at port 8080:**
+
+![Jenkins Installed](screenshots/12-jenkins-installed.png)
+
+📸 **Screenshot — Jenkins pipeline configured:**
+
+![Jenkins Pipeline](screenshots/13-jenkins-pipeline.png)
+
+📸 **Screenshot — Jenkins build success ✅:**
+
+![Jenkins Build Success](screenshots/14-jenkins-build-success.png)
 
 ---
 
-## ☁️ AWS Deployment
+## ☁️ Phase 7 - AWS Deployment
 
-### EC2 Instance
+### EC2 Instance Details
 - **Type:** t2.micro (Free Tier)
 - **OS:** Ubuntu 22.04 LTS
-- **Region:** ap-south-1 (or your region)
+- **Port:** 80 (HTTP)
 
 ### Security Group Rules
 
-| Port | Protocol | Source | Purpose |
-|------|----------|--------|---------|
-| 80 | HTTP | 0.0.0.0/0 | App access (public) |
-| 8080 | TCP | 0.0.0.0/0 | Jenkins UI |
-| 22 | SSH | My IP only | Secure server login |
+| Port | Source | Purpose |
+|------|--------|---------|
+| 80 | 0.0.0.0/0 | App — anyone can access |
+| 8080 | 0.0.0.0/0 | Jenkins UI |
+| 22 | My IP only | Secure SSH login |
 
-### Connect to EC2
-
+### Connect & Deploy on EC2
 ```bash
-ssh -i your-key.pem ubuntu@YOUR-EC2-PUBLIC-IP
+# Connect
+ssh -i your-key.pem ubuntu@YOUR-EC2-IP
+
+# Install Docker
+sudo apt update
+sudo apt install -y docker.io docker-compose
+sudo usermod -aG docker ubuntu
+
+# Deploy
+./deploy.sh
 ```
 
-### Application URL
-```
-http://YOUR-EC2-PUBLIC-IP
-```
+📸 **Screenshot — EC2 instance running in AWS console:**
+
+![EC2 Instance](screenshots/15-ec2-instance.png)
+
+📸 **Screenshot — Security Group inbound rules:**
+
+![Security Group](screenshots/16-security-group.png)
+
+📸 **Screenshot — App live on EC2 public IP:**
+
+![App Live](screenshots/17-app-live-ec2.png)
 
 ---
 
-## 📊 Monitoring
+## 📊 Phase 8 - Monitoring
 
-Using **Uptime Kuma** (open-source, self-hosted) to monitor application health.
+Using **Uptime Kuma** (open-source) to monitor application health with downtime alerts.
 
 ```bash
 docker run -d \
@@ -266,46 +406,24 @@ docker run -d \
   louislam/uptime-kuma:1
 ```
 
-- Monitor URL: `http://YOUR-EC2-IP:3001`
-- Monitors: `http://YOUR-EC2-IP` (React app)
-- **Notifications:** Configured to alert when the app goes down (Email/Telegram)
+- Monitor: `http://YOUR-EC2-IP`
+- Dashboard: `http://YOUR-EC2-IP:3001`
+- Notification alert when app goes **down** 🔴
 
----
+📸 **Screenshot — Uptime Kuma showing app UP 🟢:**
 
-## 📸 Output Screenshots
-
-> Screenshots are placed in the `/screenshots` folder.
-
-| # | Screenshot | Description |
-|---|-----------|-------------|
-| 1 | `screenshots/01-app-running.png` | React app live on port 80 |
-| 2 | `screenshots/02-dockerfile.png` | Dockerfile content |
-| 3 | `screenshots/03-docker-compose.png` | docker-compose.yml |
-| 4 | `screenshots/04-docker-build.png` | Docker image build output |
-| 5 | `screenshots/05-dockerhub-dev.png` | Docker Hub dev repo (public) |
-| 6 | `screenshots/06-dockerhub-prod.png` | Docker Hub prod repo (private) |
-| 7 | `screenshots/07-github-dev-branch.png` | GitHub dev branch commits |
-| 8 | `screenshots/08-jenkins-pipeline.png` | Jenkins pipeline success |
-| 9 | `screenshots/09-jenkins-webhook.png` | GitHub webhook config |
-| 10 | `screenshots/10-ec2-instance.png` | EC2 instance running |
-| 11 | `screenshots/11-security-group.png` | AWS Security Group rules |
-| 12 | `screenshots/12-monitoring.png` | Uptime Kuma dashboard |
+![Monitoring](screenshots/18-monitoring-dashboard.png)
 
 ---
 
 ## 📤 Submission
 
-- **GitHub Repo URL:** `https://github.com/YOUR-USERNAME/YOUR-REPO`
-- **Deployed App URL:** `http://YOUR-EC2-PUBLIC-IP`
-- **Docker Hub (dev):** `https://hub.docker.com/r/YOUR-USERNAME/dev`
-- **Docker Hub (prod):** `https://hub.docker.com/r/YOUR-USERNAME/prod`
-
----
-
-## 👤 Author
-
-**Your Name**  
-[GitHub](https://github.com/your-username) | [LinkedIn](https://linkedin.com/in/your-profile)
+| Item | Link |
+|------|------|
+| 🐙 GitHub Repo | https://github.com/subashree06/devops-capstone |
+| 🌐 Deployed App | http://YOUR-EC2-PUBLIC-IP |
+| 🐳 Docker Hub Dev | https://hub.docker.com/r/subashree06/dev |
+| 🔒 Docker Hub Prod | https://hub.docker.com/r/subashree06/prod |
 
 ---
 
