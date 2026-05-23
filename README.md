@@ -286,18 +286,38 @@ Two repositories created on Docker Hub:
 | `subashree06/prod` | 🔒 Private | Merge to `master` branch |
 
 ### Push image to Docker Hub
-```bash
+```powershell
 docker login
 docker push subashree06/dev:latest
 ```
 
-📸 **Screenshot — Docker Hub dev repo (public):**
+📸 **Screenshot — Terminal showing image push output:**
 
-![DockerHub Dev](screenshots/10-dockerhub-dev-repo.png)
+![DockerHub Terminal](screenshots/12-dockerhub-terminal.png)
 
-📸 **Screenshot — Docker Hub prod repo (private):**
+📸 **Screenshot — Docker Hub repositories page:**
 
-![DockerHub Prod](screenshots/11-dockerhub-prod-repo.png)
+![DockerHub Repos](screenshots/13-dockerhub-repos.png)
+
+📸 **Screenshot — Dev repo (Public):**
+
+![DockerHub Dev](screenshots/14-dockerhub-dev.png)
+
+📸 **Screenshot — Prod repo (Private 🔒):**
+
+![DockerHub Prod](screenshots/15-dockerhub-prod.png)
+
+📸 **Screenshot — Dev repo image tags:**
+
+![DockerHub Dev Image](screenshots/16-dockerhub-dev-image.png)
+
+📸 **Screenshot — Prod repo image tags:**
+
+![DockerHub Prod Image](screenshots/17-dockerhub-prod-image.png)
+
+📸 **Screenshot — Repo overview page:**
+
+![DockerHub Repo Page](screenshots/18-dockerhub-repo-page.png)
 
 ---
 
