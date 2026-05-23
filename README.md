@@ -153,7 +153,7 @@ services:
 docker build -t subashree06/dev:latest .
 ```
 
-📸 **Screenshot — Docker image build output:**
+📸 **Screenshot — Docker image build output (679):**
 
 ![Docker Build](screenshots/03-docker-build.png)
 
@@ -169,13 +169,13 @@ docker run -d -p 80:80 --name devops-app subashree06/dev:latest
 docker ps
 ```
 
-📸 **Screenshot — Docker container running (`docker ps`):**
+📸 **Screenshot — App running on browser via Docker port 80 (681):**
 
-![Docker Running](screenshots/04-docker-running.png)
+![App on Browser](screenshots/04-docker-running.png)
 
-📸 **Screenshot — App running on browser via Docker (port 80):**
+📸 **Screenshot — Docker container running `docker ps` (680):**
 
-![App on Browser](screenshots/05-app-on-browser.png)
+![Docker Running](screenshots/05-app-on-browser.png)
 
 ---
 
@@ -258,13 +258,21 @@ git push -u origin dev
 - `.gitignore` — excludes `node_modules/`, `build/`, `.env`
 - `.dockerignore` — excludes `node_modules`, `.git`, `build`
 
-📸 **Screenshot — GitHub showing dev branch with all files:**
+📸 **Screenshot — Terminal showing git commands:**
 
-![GitHub Dev Branch](screenshots/08-github-dev-branch.png)
+![Git Terminal](screenshots/08-git-terminal.png)
 
-📸 **Screenshot — .gitignore and .dockerignore files:**
+📸 **Screenshot — GitHub dev branch with all files:**
 
-![gitignore dockerignore](screenshots/09-gitignore-dockerignore.png)
+![GitHub Dev Branch](screenshots/09-github-dev-branch.png)
+
+📸 **Screenshot — .gitignore file content:**
+
+![gitignore](screenshots/10-gitignore.png)
+
+📸 **Screenshot — .dockerignore file content:**
+
+![dockerignore](screenshots/11-dockerignore.png)
 
 ---
 
