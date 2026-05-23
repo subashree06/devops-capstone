@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-DOCKERHUB_USERNAME="your-dockerhub-username"
+DOCKERHUB_USERNAME="subashree06"
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
 echo "Current branch: $BRANCH"
