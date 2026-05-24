@@ -4,9 +4,16 @@ pipeline {
     environment {
         DOCKERHUB_USERNAME = 'subashree06'
         IMAGE_NAME = 'dev'
+        IMAGE_TAG = 'latest'
     }
 
     stages {
+
+        stage('Workspace Cleanup') {
+            steps {
+                cleanWs()
+            }
+        }
 
         stage('Checkout') {
             steps {
@@ -14,13 +21,20 @@ pipeline {
             }
         }
 
-        stage('Install & Build App') {
+        stage('Install Dependencies') {
             steps {
                 sh '''
                     set -e
                     echo "Installing dependencies..."
                     npm install
+                '''
+            }
+        }
 
+        stage('Build React App') {
+            steps {
+                sh '''
+                    set -e
                     echo "Building React app..."
                     npm run build
                 '''
@@ -32,7 +46,7 @@ pipeline {
                 sh '''
                     set -e
                     echo "Building Docker image..."
-                    docker build -t $DOCKERHUB_USERNAME/$IMAGE_NAME:latest .
+                    docker build -t $DOCKERHUB_USERNAME/$IMAGE_NAME:$IMAGE_TAG .
                 '''
             }
         }
@@ -44,15 +58,10 @@ pipeline {
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
-
                     sh '''
                         set -e
-                        echo "Logging into DockerHub..."
-
                         echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-
-                        echo "Pushing Docker image..."
-                        docker push $DOCKER_USER/$IMAGE_NAME:latest
+                        docker push $DOCKER_USER/$IMAGE_NAME:$IMAGE_TAG
                     '''
                 }
             }
@@ -63,11 +72,21 @@ pipeline {
                 sh '''
                     set -e
 
-                    echo "Stopping old container (if any)..."
-                    docker rm -f react-app || true
+                    echo "Stopping old container..."
+                    docker stop dev-app || true
+                    docker rm dev-app || true
 
                     echo "Running new container..."
-                    docker run -d --name react-app -p 80:80 $DOCKERHUB_USERNAME/$IMAGE_NAME:latest
+                    docker run -d --name dev-app -p 80:80 \
+                        $DOCKERHUB_USERNAME/$IMAGE_NAME:$IMAGE_TAG
+                '''
+            }
+        }
+
+        stage('Cleanup Docker') {
+            steps {
+                sh '''
+                    docker system prune -af || true
                 '''
             }
         }
@@ -75,11 +94,10 @@ pipeline {
 
     post {
         success {
-            echo "Pipeline completed successfully 🎉"
+            echo "Pipeline SUCCESS ✅"
         }
-
         failure {
-            echo "Pipeline failed ❌ check logs"
+            echo "Pipeline FAILED ❌ check logs"
         }
     }
 }
