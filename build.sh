@@ -1,6 +1,4 @@
-#!/bin/bash
-
-set -e
+#!set -e
 
 echo "Installing dependencies..."
 npm install
@@ -9,10 +7,11 @@ echo "Building React app..."
 npm run build
 
 echo "Building Docker image..."
-docker build -t subashree06/dev:latest .
+docker build -t $DOCKER_USER/dev:latest .
 
 echo "Logging into DockerHub..."
-echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
 
 echo "Pushing image..."
-docker push subashree06/dev:latest
+docker push $DOCKER_USER/dev:latest/bin/bash
+
