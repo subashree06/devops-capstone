@@ -1,26 +1,18 @@
 #!/bin/bash
+
 set -e
 
-DOCKERHUB_USERNAME="subashree06"
-BRANCH=$(git rev-parse --abbrev-ref HEAD)
+echo "Installing dependencies..."
+npm install
 
-echo "Current branch: $BRANCH"
+echo "Building React app..."
+npm run build
 
-if [ "$BRANCH" = "master" ]; then
-  REPO="prod"
-else
-  REPO="dev"
-fi
+echo "Building Docker image..."
+docker build -t subashree06/dev:latest .
 
-IMAGE="$DOCKERHUB_USERNAME/$REPO:latest"
-
-echo "Building image: $IMAGE"
-docker build -t $IMAGE .
-
-echo "Logging into Docker Hub..."
+echo "Logging into DockerHub..."
 echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
 
-echo "Pushing image: $IMAGE"
-docker push $IMAGE
-
-echo "Build complete!"
+echo "Pushing image..."
+docker push subashree06/dev:latest
