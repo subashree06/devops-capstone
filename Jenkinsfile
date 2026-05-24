@@ -69,16 +69,14 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                sh '''
-                    set -e
-
-                    echo "Stopping old container..."
-                    docker stop dev-app || true
-                    docker rm dev-app || true
-
-                    echo "Running new container..."
-                    docker run -d --name dev-app -p 80:80 \
-                        $DOCKERHUB_USERNAME/$IMAGE_NAME:$IMAGE_TAG
+        sh '''
+            set -e
+            echo "Stopping old container..."
+            docker stop dev-app || true
+            docker rm dev-app || true
+            echo "Running new container..."
+            docker run -d --name dev-app -p 80:80 subashree06/dev:latest
+            echo "Deployment complete!"
                 '''
             }
         }
