@@ -54,24 +54,6 @@ This project demonstrates a complete DevOps workflow — from source code to a l
 ```
 devops-capstone/
 ├── screenshots/
-│   ├── 01-app-local.png
-│   ├── 02-dockerfile.png
-│   ├── 03-docker-build.png
-│   ├── 04-docker-running.png
-│   ├── 05-app-on-browser.png
-│   ├── 06-build-sh.png
-│   ├── 07-deploy-sh.png
-│   ├── 08-github-dev-branch.png
-│   ├── 09-gitignore-dockerignore.png
-│   ├── 10-dockerhub-dev-repo.png
-│   ├── 11-dockerhub-prod-repo.png
-│   ├── 12-jenkins-installed.png
-│   ├── 13-jenkins-pipeline.png
-│   ├── 14-jenkins-build-success.png
-│   ├── 15-ec2-instance.png
-│   ├── 16-security-group.png
-│   ├── 17-app-live-ec2.png
-│   └── 18-monitoring-dashboard.png
 ├── build/
 ├── Dockerfile
 ├── docker-compose.yml
@@ -130,12 +112,6 @@ EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
 ```
 
-📸 **Screenshot — Dockerfile in VS Code:**
-
-![Dockerfile](screenshots/02-dockerfile.png)
-
----
-
 ### docker-compose.yml
 
 ```yaml
@@ -153,29 +129,23 @@ services:
 docker build -t subashree06/dev:latest .
 ```
 
-📸 **Screenshot — Docker image build output (679):**
+📸 **Screenshot — Docker image build output:**
 
 ![Docker Build](screenshots/03-docker-build.png)
-
----
 
 ### Run Docker Container
 ```powershell
 docker run -d -p 80:80 --name devops-app subashree06/dev:latest
-```
-
-### Verify container is running
-```powershell
 docker ps
 ```
 
-📸 **Screenshot — App running on browser via Docker port 80 (681):**
+📸 **Screenshot — Docker container running:**
 
-![App on Browser](screenshots/04-docker-running.png)
+![Docker Running](screenshots/04-docker-running.png)
 
-📸 **Screenshot — Docker container running `docker ps` (680):**
+📸 **Screenshot — App running on browser via Docker (port 80):**
 
-![Docker Running](screenshots/05-app-on-browser.png)
+![App on Browser](screenshots/05-app-on-browser.png)
 
 ---
 
@@ -208,8 +178,6 @@ echo "Build complete!"
 📸 **Screenshot — build.sh script in VS Code:**
 
 ![build.sh](screenshots/06-build-sh.png)
-
----
 
 ### deploy.sh — Pulls image and deploys on server
 
@@ -255,8 +223,8 @@ git commit -m "initial commit: add Dockerfile, scripts, and CI/CD config"
 git push -u origin dev
 ```
 
-- `.gitignore` — excludes `node_modules/`, `build/`, `.env`
-- `.dockerignore` — excludes `node_modules`, `.git`, `build`
+- `.gitignore` — excludes `node_modules/`, `.env`
+- `.dockerignore` — excludes `node_modules`, `.git`
 
 📸 **Screenshot — Terminal showing git commands:**
 
@@ -340,40 +308,140 @@ pipeline {
     agent any
     environment {
         DOCKERHUB_USERNAME = 'subashree06'
-        DOCKERHUB_PASSWORD = credentials('dockerhub-creds')
+        DOCKER_PASS = credentials('dockerhub-creds')
     }
     stages {
-        stage('Clone')        { steps { checkout scm } }
-        stage('Build & Push') { steps { sh './build.sh' } }
-        stage('Deploy')       { steps { sh "./deploy.sh ${env.BRANCH_NAME}" } }
+        stage('Workspace Cleanup') {
+            steps { cleanWs() }
+        }
+        stage('Checkout') {
+            steps { checkout scm }
+        }
+        stage('Build Docker Image') {
+            steps {
+                sh '''
+                    set -e
+                    BRANCH=${BRANCH_NAME}
+                    if [ "$BRANCH" = "master" ]; then
+                        REPO="prod"
+                    else
+                        REPO="dev"
+                    fi
+                    docker build -t $DOCKERHUB_USERNAME/$REPO:latest .
+                '''
+            }
+        }
+        stage('Docker Login & Push') {
+            steps {
+                sh '''
+                    set -e
+                    echo $DOCKER_PASS | docker login -u $DOCKERHUB_USERNAME --password-stdin
+                    BRANCH=${BRANCH_NAME}
+                    if [ "$BRANCH" = "master" ]; then
+                        REPO="prod"
+                    else
+                        REPO="dev"
+                    fi
+                    docker push $DOCKERHUB_USERNAME/$REPO:latest
+                '''
+            }
+        }
+        stage('Deploy') {
+            steps {
+                sh '''
+                    set -e
+                    docker stop dev-app || true
+                    docker rm dev-app || true
+                    docker run -d --name dev-app -p 80:80 subashree06/dev:latest
+                '''
+            }
+        }
+    }
+    post {
+        success { echo 'Pipeline SUCCESS ✅' }
+        failure { echo 'Pipeline FAILED ❌ check logs' }
     }
 }
 ```
 
-### Jenkins Install on EC2
-```bash
-sudo apt update
-sudo apt install -y openjdk-17-jdk
-curl -fsSL https://pkg.jenkins.io/debian/jenkins.io-2023.key | sudo tee \
-  /usr/share/keyrings/jenkins-keyring.asc > /dev/null
-echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
-  https://pkg.jenkins.io/debian binary/ | sudo tee \
-  /etc/apt/sources.list.d/jenkins.list > /dev/null
-sudo apt update && sudo apt install -y jenkins
-sudo systemctl start jenkins
-```
+### Jenkins Setup
+- Jenkins installed on EC2 at port `8080`
+- GitHub repo connected via webhook
+- DockerHub credentials added (ID: `dockerhub-creds`)
+- Multibranch pipeline job created
+- Auto-triggers on push to `dev` and `master`
 
-📸 **Screenshot — Jenkins dashboard accessible at port 8080:**
+📸 **Screenshot — EC2 instance running:**
 
-![Jenkins Installed](screenshots/12-jenkins-installed.png)
+![EC2 Instance](screenshots/19-ec2-instance.png)
+
+📸 **Screenshot — EC2 instance details:**
+
+![EC2 Instance2](screenshots/20-ec2-instance2.png)
+
+📸 **Screenshot — EC2 status checks:**
+
+![EC2 Instance3](screenshots/21-ec2-instance3.png)
+
+📸 **Screenshot — EC2 security group:**
+
+![EC2 Security](screenshots/22-ec2-instance4.png)
+
+📸 **Screenshot — EC2 connect page:**
+
+![EC2 Connect](screenshots/23-ec2-instance5.png)
+
+📸 **Screenshot — Jenkins login page:**
+
+![Jenkins Login](screenshots/24-jenkins-login.png)
+
+📸 **Screenshot — Jenkins dashboard:**
+
+![Jenkins Dashboard](screenshots/25-jenkins-dashboard.png)
 
 📸 **Screenshot — Jenkins pipeline configured:**
 
-![Jenkins Pipeline](screenshots/13-jenkins-pipeline.png)
+![Jenkins Pipeline](screenshots/26-jenkins-pipeline.png)
+
+📸 **Screenshot — Jenkins GitHub credentials:**
+
+![Jenkins Credentials](screenshots/27-jenkins-credentials.png)
+
+📸 **Screenshot — Jenkins Docker Hub credentials:**
+
+![Jenkins Docker Creds](screenshots/28-jenkins-docker-creds.png)
+
+📸 **Screenshot — Jenkins build running:**
+
+![Jenkins Build](screenshots/29-jenkins-build.png)
+
+📸 **Screenshot — Jenkins pipeline stages:**
+
+![Jenkins Stages](screenshots/30-jenkins-stages.png)
 
 📸 **Screenshot — Jenkins build success ✅:**
 
-![Jenkins Build Success](screenshots/14-jenkins-build-success.png)
+![Jenkins Success](screenshots/31-jenkins-success.png)
+
+📸 **Screenshot — Jenkins console output:**
+
+![Jenkins Console](screenshots/32-jenkins-console.png)
+
+📸 **Screenshot — GitHub webhook configured:**
+
+![GitHub Webhook](screenshots/33-github-webhook.png)
+
+📸 **Screenshot — Jenkins build output 1:**
+
+![Jenkins Build Output](screenshots/34-jenkins-build-output.png)
+
+📸 **Screenshot — Jenkins build output 2:**
+
+![Jenkins Build Output2](screenshots/35-jenkins-build-output2.png)
+
+📸 **Screenshot — Jenkins build output 3:**
+
+![Jenkins Build Output3](screenshots/36-jenkins-build-output3.png)
 
 ---
 
@@ -395,7 +463,7 @@ sudo systemctl start jenkins
 ### Connect & Deploy on EC2
 ```bash
 # Connect
-ssh -i your-key.pem ubuntu@YOUR-EC2-IP
+ssh -i devops-key.pem ubuntu@3.108.184.161
 
 # Install Docker
 sudo apt update
@@ -403,20 +471,13 @@ sudo apt install -y docker.io docker-compose
 sudo usermod -aG docker ubuntu
 
 # Deploy
-./deploy.sh
+docker run -d --name dev-app -p 80:80 subashree06/dev:latest
 ```
 
-📸 **Screenshot — EC2 instance running in AWS console:**
-
-![EC2 Instance](screenshots/15-ec2-instance.png)
-
-📸 **Screenshot — Security Group inbound rules:**
-
-![Security Group](screenshots/16-security-group.png)
-
-📸 **Screenshot — App live on EC2 public IP:**
-
-![App Live](screenshots/17-app-live-ec2.png)
+### Application URL
+```
+http://3.108.184.161
+```
 
 ---
 
@@ -433,13 +494,13 @@ docker run -d \
   louislam/uptime-kuma:1
 ```
 
-- Monitor: `http://YOUR-EC2-IP`
-- Dashboard: `http://YOUR-EC2-IP:3001`
+- Monitor: `http://3.108.184.161`
+- Dashboard: `http://3.108.184.161:3001`
 - Notification alert when app goes **down** 🔴
 
-📸 **Screenshot — Uptime Kuma showing app UP 🟢:**
+📸 **Screenshot — Uptime Kuma monitoring dashboard:**
 
-![Monitoring](screenshots/18-monitoring-dashboard.png)
+![Monitoring](screenshots/37-monitoring-dashboard.png)
 
 ---
 
@@ -448,7 +509,7 @@ docker run -d \
 | Item | Link |
 |------|------|
 | 🐙 GitHub Repo | https://github.com/subashree06/devops-capstone |
-| 🌐 Deployed App | http://YOUR-EC2-PUBLIC-IP |
+| 🌐 Deployed App | http://3.108.184.161 |
 | 🐳 Docker Hub Dev | https://hub.docker.com/r/subashree06/dev |
 | 🔒 Docker Hub Prod | https://hub.docker.com/r/subashree06/prod |
 
