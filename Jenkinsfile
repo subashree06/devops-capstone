@@ -24,16 +24,16 @@ pipeline {
                     sh '''
                         set -e
 
-                        echo "===== Installing dependencies & building app ====="
+                        echo "Installing dependencies..."
                         ./build.sh
 
-                        echo "===== Building Docker image ====="
+                        echo "Building Docker image..."
                         docker build -t $DOCKER_USER/dev:latest .
 
-                        echo "===== Logging into DockerHub ====="
+                        echo "Logging into DockerHub..."
                         echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
 
-                        echo "===== Pushing Docker image ====="
+                        echo "Pushing Docker image..."
                         docker push $DOCKER_USER/dev:latest
                     '''
                 }
@@ -45,3 +45,5 @@ pipeline {
                 sh "./deploy.sh ${env.BRANCH_NAME}"
             }
         }
+    }
+}
