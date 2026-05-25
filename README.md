@@ -495,6 +495,22 @@ docker run -d --name dev-app -p 80:80 subashree06/dev:latest
 http://3.108.184.161
 ```
 
+📸 **Screenshot — EC2 instance running in AWS Console:**
+
+![EC2 Instance](screenshots/37-ec2-instance.png)
+
+📸 **Screenshot — EC2 terminal output:**
+
+![EC2 Terminal](screenshots/38-ec2-terminal.png)
+
+📸 **Screenshot — Security group inbound rules:**
+
+![Security Group](screenshots/39-security-group.png)
+
+📸 **Screenshot — OnlineShop app live on EC2:**
+
+![App on EC2](screenshots/40-app-on-ec2.png)
+
 ---
 
 ## 📊 Phase 8 - Monitoring
