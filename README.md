@@ -391,6 +391,22 @@ pipeline {
 
 ![EC2 Connect](screenshots/23-ec2-instance5.png)
 
+📸 **Screenshot — EC2 instance (AWS phase):**
+
+![EC2 Instance AWS](screenshots/37-ec2-instance.png)
+
+📸 **Screenshot — EC2 terminal output:**
+
+![EC2 Terminal](screenshots/38-ec2-terminal.png)
+
+📸 **Screenshot — Security group inbound rules:**
+
+![Security Group](screenshots/39-security-group.png)
+
+📸 **Screenshot — OnlineShop app live on EC2:**
+
+![App on EC2](screenshots/40-app-on-ec2.png)
+
 📸 **Screenshot — Jenkins login page:**
 
 ![Jenkins Login](screenshots/24-jenkins-login.png)
@@ -500,7 +516,7 @@ docker run -d \
 
 📸 **Screenshot — Uptime Kuma monitoring dashboard:**
 
-![Monitoring](screenshots/37-monitoring-dashboard.png)
+![Monitoring](screenshots/41-monitoring-dashboard.png)
 
 ---
 
