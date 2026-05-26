@@ -515,24 +515,79 @@ http://3.108.184.161
 
 ## 📊 Phase 8 - Monitoring
 
-Using **Uptime Kuma** (open-source) to monitor application health with downtime alerts.
+Using **Prometheus + Grafana** (open-source) to monitor application health with downtime alerts.
 
-```bash
-docker run -d \
-  --restart=always \
-  -p 3001:3001 \
-  -v uptime-kuma:/app/data \
-  --name uptime-kuma \
-  louislam/uptime-kuma:1
+### docker-compose.yml for monitoring
+
+```yaml
+version: '3.8'
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    restart: always
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+    restart: always
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    ports:
+      - "9100:9100"
+    restart: always
 ```
 
-- Monitor: `http://3.108.184.161`
-- Dashboard: `http://3.108.184.161:3001`
-- Notification alert when app goes **down** 🔴
+### Access
+- Prometheus: `http://3.108.184.161:9090`
+- Grafana: `http://3.108.184.161:3000`
+- Node Exporter: `http://3.108.184.161:9100`
 
-📸 **Screenshot — Uptime Kuma monitoring dashboard:**
+📸 **Screenshot — Prometheus target health:**
 
-![Monitoring](screenshots/41-monitoring-dashboard.png)
+![Prometheus Target Health](screenshots/41-prometheus-target-health.png)
+
+📸 **Screenshot — Monitoring terminal output 1:**
+
+![Monitoring Terminal](screenshots/42-monitoring-terminal.png)
+
+📸 **Screenshot — Monitoring terminal output 2:**
+
+![Monitoring Terminal2](screenshots/43-monitoring-terminal2.png)
+
+📸 **Screenshot — Prometheus screenshot:**
+
+![Prometheus](screenshots/44-prometheus-screenshot.png)
+
+📸 **Screenshot — Grafana dashboard:**
+
+![Grafana Dashboard](screenshots/45-grafana-dashboard.png)
+
+📸 **Screenshot — Grafana dashboard 2:**
+
+![Grafana Dashboard2](screenshots/46-grafana-dashboard2.png)
+
+📸 **Screenshot — Grafana alert down:**
+
+![Grafana Alert Down](screenshots/47-grafana-alert-down.png)
+
+📸 **Screenshot — Node exporter alert:**
+
+![Node Exporter Alert](screenshots/48-node-exporter-alert.png)
+
+📸 **Screenshot — Node exporter alert 2:**
+
+![Node Exporter Alert2](screenshots/49-node-exporter-alert2.png)
 
 ---
 
